@@ -1,7 +1,6 @@
 
 library(rvest)
 library(dplyr)
-library(stringr)
 
 # Testing if we are allowed to web scrape
 robotstxt::paths_allowed(domain = 
