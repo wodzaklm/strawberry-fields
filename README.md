@@ -11,3 +11,5 @@ Description: Analyzing the success of the Beatles, both as a band, and later as 
 ### Workflow
 For Billboard data, we used Claude to scrape the Wikipedia pages. Due to the formatting of the embedded tables, we were unable to web scrape them ourselves. Cross-validating with a manually produced table of Billboard charts, we corrected technically incorrect date values.
 
+For the Kworb Spotify streaming data we used webscraping techniques in R code to extract streaming data from the Kworb website. We extracted the second table on the webpage. We used the rvest and dplyr packages. This data was copied to our clipboard which we manually put into a csv file for each artist. 
+
