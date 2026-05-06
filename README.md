@@ -1,2 +1,13 @@
 # strawberry-fields
 ISA 401 Final Project: Analysis of Beatles music and solo careers
+
+Description: Analyzing the success of the Beatles, both as a band, and later as solo artists. Our data includes daily streaming data, geographic streaming data, Billboard charts, and a calculated "hit percentage" measure (scaling the number of hits by an artist to the total number of songs they have released).
+
+### Data Sources
+- Kworb (Streaming data by country, as well as cumulative and daily Spotify streaming data)
+- ChartMasters (Audio and video streams for singles)
+- Billboard Charts (1964-1984 Top 100 #1 Billboard charts from Wikipedia)
+
+### Workflow
+For Billboard data, we used Claude to scrape the Wikipedia pages. Due to the formatting of the embedded tables, we were unable to web scrape them ourselves. Cross-validating with a manually produced table of Billboard charts, we corrected technically incorrect date values.
+
