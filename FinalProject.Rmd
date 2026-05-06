@@ -1,0 +1,98 @@
+---
+title: "Untitled"
+author: "Andrew Carpenter"
+date: "2026-04-29"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rvest)
+library(dplyr)
+library(stringr)
+library(purrr)
+
+scrape_kworb_albums <- function(url, artist_name) {
+  
+  page <- read_html(url)
+  
+  album_cells <- page %>%
+    html_elements("#albums td")
+  
+  map_dfr(album_cells, function(cell) {
+    
+    album <- cell %>%
+      html_element("b") %>%
+      html_text2()
+    
+    if (length(album) == 0 || is.na(album) || album == "") return(NULL)
+    
+    album <- album %>%
+      str_remove("^Album:\\s*")
+    
+    chart_entries <- cell %>%
+      html_elements("a") %>%
+      html_text2()
+    
+    chart_entries <- chart_entries[str_detect(chart_entries, "^#\\d+")]
+    
+    if (length(chart_entries) == 0) return(NULL)
+    
+    tibble(
+      artist = artist_name,
+      album = album,
+      placement = as.numeric(str_extract(chart_entries, "(?<=#)\\d+")),
+      country = chart_entries %>%
+        str_remove("^#\\d+\\s*") %>%
+        str_trim()
+    )
+  })
+}
+
+beatles_df <- scrape_kworb_albums(
+  "https://kworb.net/itunes/artist/thebeatles.html",
+  "The Beatles"
+)
+
+lennon_df <- scrape_kworb_albums(
+  "https://kworb.net/itunes/artist/johnlennon.html",
+  "John Lennon"
+)
+
+mccartney_df <- scrape_kworb_albums(
+  "https://kworb.net/itunes/artist/paulmccartney.html",
+  "Paul McCartney"
+)
+
+ringo_df <- scrape_kworb_albums(
+  "https://kworb.net/itunes/artist/ringostarr.html",
+  "Ringo Starr"
+)
+
+harrison_df <- scrape_kworb_albums(
+  "https://kworb.net/itunes/artist/georgeharrison.html",
+  "George Harrison"
+)
+
+all_kworb_albums <- bind_rows(
+  beatles_df,
+  lennon_df,
+  mccartney_df,
+  ringo_df,
+  harrison_df
+)
+
+View(all_kworb_albums)
+
+write.csv(all_kworb_albums, "kworb_album_country_placement.csv", row.names = FALSE)
+```
+
+```{r}
+write.csv(all_kworb_albums,
+          "kworb_album_country_placement.csv",
+          row.names = FALSE)
+```
+
