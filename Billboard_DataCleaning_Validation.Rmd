@@ -1,0 +1,75 @@
+---
+title: "Beatles Billboard data"
+author: "Lorna Wodzak"
+date: "2026-05-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Beatles Billboard Data
+
+```{r}
+library(readr)
+df <- read_csv('beatles_billboard.csv')
+nrow(df) # should be 102 rows
+df <- df[0:101, ]
+
+tail(df) # double checking, last date should be 1/14/84
+```
+
+## Initial Data Quality
+
+```{r}
+is.na(df) # no null values
+```
+
+# Creating Tidier Cumulative Format
+
+
+```{r}
+# install.packages("lubridate") # to order by year
+library(lubridate)
+library(dplyr)
+df %>% 
+  mutate(Date = mdy(Month_Day)) 
+```
+
+
+```{r}
+library(dplyr)
+beatles <- df %>%
+  group_by(Song, Artist) %>%
+  summarise(count = n(),
+            Date = first(Month_Day)) %>%
+  mutate(Date = lubridate::mdy(Date)) %>%
+  arrange(lubridate::year(Date))
+beatles
+```
+
+## Data Validation
+
+```{r}
+# install.packages("pointblank")
+agent <- pointblank::create_agent(beatles) %>%
+  pointblank::col_is_numeric(columns = vars(count)) %>%
+  pointblank::col_is_date(columns = vars(Date)) %>%
+  pointblank::col_vals_gt(columns = vars(count), 0) %>% # no negative #1 week counts
+  pointblank::col_vals_between(columns = vars(count), 1, 10) %>%
+  pointblank::col_vals_not_null(columns=vars(Date)) %>% # was getting weird errors with John Lennon song missing data --> double check
+  pointblank::interrogate()   
+
+agent # data validated
+```
+
+## Observing Distribution
+
+```{r}
+library(ggplot2)
+ggplot(beatles, aes(x = Date, y = count, color = Artist)) + geom_point(size = 3) 
+```
+
+This plot reflects expected distribution/values. I would be concerned if there were Beatles data points past 1970, or if there were any solo artists before 1969. 
+
