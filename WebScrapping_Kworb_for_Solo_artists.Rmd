@@ -1,0 +1,80 @@
+---
+title: "WebScrapping Individual Beatles"
+output: html_document
+---
+
+```{r}
+library(rvest)
+library(dplyr)
+library(stringr)
+library(readr)
+library(robotstxt)
+
+get_kworb_songs <- function(url, artist_name, file_name) {
+  
+  # Check robots.txt permission
+  if (!paths_allowed(url)) {
+    stop(paste("Scraping is not allowed by robots.txt for:", url))
+  }
+  
+  # Read page
+  page <- read_html(url)
+  tables <- page |> html_table(fill = TRUE)
+  
+  # Extract data
+  songs <- tables[[2]] |>
+    select(`Song Title`, Streams, Daily) |>
+    rename(
+      song_title = `Song Title`,
+      streams = Streams,
+      daily = Daily
+    ) |>
+    mutate(
+      artist = artist_name,
+      song_title = str_remove(song_title, "^\\*\\s*"),
+      streams = as.numeric(gsub(",", "", streams)),
+      daily = as.numeric(gsub(",", "", daily))
+    ) |>
+    select(artist, song_title, streams, daily)
+  
+  # Save to CSV
+  write_csv(songs, file_name)
+  
+  return(songs)
+}
+
+# Paul McCartney
+paul_songs <- get_kworb_songs(
+  url = "https://kworb.net/spotify/artist/4STHEaNw4mPZ2tzheohgXB_songs.html",
+  artist_name = "Paul McCartney",
+  file_name = "paul_mccartney_song_streams.csv"
+)
+
+# John Lennon
+john_songs <- get_kworb_songs(
+  url = "https://kworb.net/spotify/artist/4x1nvY2FN8jxqAFA0DA02H_songs.html",
+  artist_name = "John Lennon",
+  file_name = "john_lennon_song_streams.csv"
+)
+
+# George Harrison
+george_songs <- get_kworb_songs(
+  url = "https://kworb.net/spotify/artist/7FIoB5PHdrMZVC3q2HE5MS_songs.html",
+  artist_name = "George Harrison",
+  file_name = "george_harrison_song_streams.csv"
+)
+
+# Ringo Starr
+ringo_songs <- get_kworb_songs(
+  url = "https://kworb.net/spotify/artist/6DbJi8AcN5ANdtvJcwBSw8_songs.html",
+  artist_name = "Ringo Starr",
+  file_name = "ringo_starr_song_streams.csv"
+)
+
+# Preview
+head(paul_songs)
+head(john_songs)
+head(george_songs)
+head(ringo_songs)
+```
+
