@@ -1,3 +1,34 @@
-# To reproduce our data pipeline:
+## To reproduce our data pipeline:
 
-# 
+# KWORB SPOTIFY STREAMING
+
+# KWORB GEOGRAPHIC
+
+# BILLBOARD
+1. Prompt Claude (or LLM of your choice) to scrape Wikipedia's Billboard Hot 100 #1 pages for the years 1964-1984.
+
+Here are our original prompts:
+"Please scrape the table at this link: https://en.wikipedia.org/wiki/List_of_Billboard_Hot_100_number_ones_of_1964 for the 
+date, song title, and artist of each Billboard Hot 100 number 1. Put this result into a csv file. Filter the results to 
+only include songs by the artist "The Beatles". Remember that one song title can belong to multiple different days, and 
+that one artist can belong to multiple different song titles."
+
+"Perfect. Please repeat the same process for the years 1965-1984. In addition to the Beatles, include musical artists John 
+Lennon, Paul McCartney, Ringo Starr, and George Harrison."
+
+2. Cross-validate LLM produced output with original Wikipedia page. Especially check for the correct dates, as Claude gets
+confused by comma-delimited dates with this data. 
+
+### Code for steps 3-6 are included in the "Billboard_DataCleaning_Validation.Rmd" document
+
+3. Read the resulting .csv into R, checking for nulls and trimming the data to the original 102 row length. 
+
+4. Reformat the data using lubridate and dplyr to create a cumulative data set (how many weeks each song charted for)
+
+5. Validate the data using pointblank to check that variable formats are correct, numeric values are in the correct ranges, 
+and that all rows have date columns.
+
+6. Create a distribution with ggplot to visually check for any incorrect data. 
+
+
+# HIT PERCENTAGE
